@@ -112,7 +112,7 @@ elif source_radio == 'Webcam Video':
         feature = calHist(gray_frame)
         predict = model.predict([feature])[0]
         with col1:
-            FRAME_WINDOW.image(img)
+            FRAME_WINDOW.image(frame)
         with col2:
             if predict is not None:
                 st.write('\n\n\n\n\n\n\n\n\n')
