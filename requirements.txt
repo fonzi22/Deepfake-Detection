@@ -2,3 +2,7 @@ joblib
 numpy
 opencv-python
 scikit-learn
+streamlit
+sklearn
+scikit-image
+Pillow
