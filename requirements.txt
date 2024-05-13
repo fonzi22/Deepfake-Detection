@@ -1,6 +1,5 @@
 scikit-learn
 scikit-image
-Pillow
 joblib
 numpy
 opencv-python-headless
