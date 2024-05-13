@@ -4,3 +4,4 @@ Pillow
 joblib
 numpy
 opencv-python
+opencv-python-headless
