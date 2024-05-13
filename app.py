@@ -97,27 +97,28 @@ elif source_radio == 'Webcam Image':
                 st.header('This is a real face.')
             else:
                 st.header('This is a fake face.')
-                
+
 elif source_radio == 'Webcam Video':
+    FRAME_WINDOW = st.image([])
+    cap = cv.VideoCapture(0)
     col1, col2 = st.columns(2)
-    with col1:
-        cap = cv.VideoCapture(0)
-        frame_placeholder = st.empty()
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                cap.release()
-                break
-            gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-            feature = calHist(gray_frame)
-            predict = model.predict([feature])[0]
-            
-    with col2:
-        if predict is not None:
-            st.write('\n\n\n\n\n\n\n\n\n')
-            if predict:
-                st.header('This is a real face.')
-            else:
-                st.header('This is a fake face.')
+    frame_placeholder = st.empty()
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            cap.release()
+            break
+        gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        feature = calHist(gray_frame)
+        predict = model.predict([feature])[0]
+        with col1:
+            FRAME_WINDOW.image(img)
+        with col2:
+            if predict is not None:
+                st.write('\n\n\n\n\n\n\n\n\n')
+                if predict:
+                    st.header('This is a real face.')
+                else:
+                    st.header('This is a fake face.')
 else:
     st.error("Please select a valid source type!")
