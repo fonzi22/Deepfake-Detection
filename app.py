@@ -1,6 +1,6 @@
 # Python In-built packages
 from pathlib import Path
-import PIL
+from PIL import Image
 import joblib
 import cv2 as cv
 import streamlit as st
@@ -59,7 +59,7 @@ if source_radio == 'Image':
     with col1:
         if source_img is not None:
             try:
-                uploaded_image = PIL.Image.open(source_img)
+                uploaded_image = Image.open(source_img)
                 st.image(source_img, caption="Uploaded Image", use_column_width=True)
                 if st.button('PREDICT'):
                     img = np.array(uploaded_image.convert('L'))
@@ -83,7 +83,7 @@ elif source_radio == 'Webcam Image':
         image = st.camera_input("Take a picture")
         if image and st.button('PREDICT'):
             try:
-                webcam_image = PIL.Image.open(image)
+                webcam_image = Image.open(image)
                 img = np.array(webcam_image.convert('L'))
                 feature = calHist(img)
                 predict,  = model.predict([feature])
