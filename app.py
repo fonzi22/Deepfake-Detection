@@ -101,7 +101,6 @@ elif source_radio == 'Webcam Image':
 elif source_radio == 'Webcam Video':
     FRAME_WINDOW = st.image([])
     cap = cv.VideoCapture(0)
-    frame_placeholder = st.empty()
     while True:
         ret, frame = cap.read()
         if not ret:
