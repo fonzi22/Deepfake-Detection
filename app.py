@@ -99,7 +99,7 @@ elif source_radio == 'Webcam Image':
                 st.header('This is a fake face.')
 
 elif source_radio == 'Webcam Video':
-    FRAME_WINDOW = st.image([])
+    frame_placeholder = st.empty()
     cap = cv.VideoCapture(0)
     while True:
         ret, frame = cap.read()
@@ -112,7 +112,7 @@ elif source_radio == 'Webcam Video':
         predict = model.predict([feature])[0]
         col1, col2 = st.columns(2)
         with col1:
-            FRAME_WINDOW.image(webcam_frame)
+            frame_placeholder.image(webcam_frame)
         with col2:
             if predict is not None:
                 st.write('\n\n\n\n\n\n\n\n\n')
