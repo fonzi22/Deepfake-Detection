@@ -74,7 +74,7 @@ if source_radio == 'Image':
             if predict:
                 st.header('REAL FACE.')
             else:
-                st.header('FAKE FACE')
+                st.header('FAKE FACE.')
         
 
 elif source_radio == 'Webcam':
@@ -96,7 +96,7 @@ elif source_radio == 'Webcam':
             if predict:
                 st.header('REAL FACE.')
             else:
-                st.header('FAKE FACE')
+                st.header('FAKE FACE.')
 
 # elif source_radio == 'Webcam Video':
 #     frame_placeholder = st.empty()
