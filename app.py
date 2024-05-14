@@ -101,18 +101,19 @@ elif source_radio == 'Webcam Image':
 elif source_radio == 'Webcam Video':
     FRAME_WINDOW = st.image([])
     cap = cv.VideoCapture(0)
-    col1, col2 = st.columns(2)
     frame_placeholder = st.empty()
     while True:
         ret, frame = cap.read()
         if not ret:
             cap.release()
             break
-        gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        webcam_frame = Image.open(frame)
+        gray_frame = np.array(webcam_frame.convert('L'))
         feature = calHist(gray_frame)
         predict = model.predict([feature])[0]
+        col1, col2 = st.columns(2)
         with col1:
-            FRAME_WINDOW.image(frame)
+            FRAME_WINDOW.image(webcam_frame)
         with col2:
             if predict is not None:
                 st.write('\n\n\n\n\n\n\n\n\n')
