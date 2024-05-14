@@ -47,8 +47,8 @@ elif model_name == 'Ensemble':
 
 
 # Load Pre-trained ML Model
-st.sidebar.header("Image/Video Config")
-source_radio = st.sidebar.radio("Select Source", ['Image', 'Webcam Image', 'Webcam Video'])
+st.sidebar.header("Image Config")
+source_radio = st.sidebar.radio("Select Source", ['Image', 'Webcam'])
 
 predict = None
 source_img = None
@@ -77,7 +77,7 @@ if source_radio == 'Image':
                 st.header('This is a fake face.')
         
 
-elif source_radio == 'Webcam Image':
+elif source_radio == 'Webcam':
     col1, col2 = st.columns(2)
     with col1:
         image = st.camera_input("Take a picture")
@@ -98,27 +98,27 @@ elif source_radio == 'Webcam Image':
             else:
                 st.header('This is a fake face.')
 
-elif source_radio == 'Webcam Video':
-    frame_placeholder = st.empty()
-    cap = cv.VideoCapture(0)
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            cap.release()
-            break
-        webcam_frame = Image.open(frame)
-        gray_frame = np.array(webcam_frame.convert('L'))
-        feature = calHist(gray_frame)
-        predict = model.predict([feature])[0]
-        col1, col2 = st.columns(2)
-        with col1:
-            frame_placeholder.image(webcam_frame)
-        with col2:
-            if predict is not None:
-                st.write('\n\n\n\n\n\n\n\n\n')
-                if predict:
-                    st.header('This is a real face.')
-                else:
-                    st.header('This is a fake face.')
+# elif source_radio == 'Webcam Video':
+#     frame_placeholder = st.empty()
+#     cap = cv.VideoCapture(0)
+#     while True:
+#         ret, frame = cap.read()
+#         if not ret:
+#             cap.release()
+#             break
+#         webcam_frame = Image.open(frame)
+#         gray_frame = np.array(webcam_frame.convert('L'))
+#         feature = calHist(gray_frame)
+#         predict = model.predict([feature])[0]
+#         col1, col2 = st.columns(2)
+#         with col1:
+#             frame_placeholder.image(webcam_frame)
+#         with col2:
+#             if predict is not None:
+#                 st.write('\n\n\n\n\n\n\n\n\n')
+#                 if predict:
+#                     st.header('This is a real face.')
+#                 else:
+#                     st.header('This is a fake face.')
 else:
     st.error("Please select a valid source type!")
