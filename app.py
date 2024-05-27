@@ -2,20 +2,29 @@
 from pathlib import Path
 from PIL import Image
 import joblib
-import cv2 as cv
 import streamlit as st
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+import torchvision.models as models
+import torch.nn as nn
+import torch
+import cv2
 
-def calHist(img):
-    hist = cv.calcHist([img],[0],None,
-                       [256],[0,256])
-    size = img.shape[0]*img.shape[1]
-    hist = hist / size
-    return hist.reshape(-1)
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
+def predict(img, model):
+    img = np.array(img)
+    img = cv2.resize(img, (64, 64))
+    image = img.astype(np.float32)
+    image = image.transpose(2, 0, 1)
+    image = torch.tensor(image).unsqueeze(0).to(device) 
+
+    outputs = model(image)
+    # return values, indices
+    _, predicted = torch.max(outputs, 1)
+    return predicted
 
 # Setting page layout
 st.set_page_config(
@@ -32,25 +41,51 @@ st.title("Deep Fake Detection")
 st.sidebar.header("ML Model Config")
 
 # Model Options
-model_name = st.sidebar.radio("Select Model", ['KNN', 'Decision Tree', 'Random Forest', 'Ensemble'])
+model_name = st.sidebar.radio("Select Model", ['MobileNet', 'ShuffleNet', 'EfficientNet', 'Ensemble'])
+
+
+@staticmethod
+def load_model():
+    #'Mobile':
+    mobilenet = models.mobilenet_v3_small(pretrained=True)
+    mobilenet.classifier = nn.Sequential(
+        nn.Dropout(0.2, inplace=True),
+        nn.Linear(in_features=576, out_features=2, bias=True)
+    )
+    mobilenet.load_state_dict(torch.load('mobilenet.pt'))
+    # 'EfficientNet':
+    efficientnet = models.efficientnet_b0(pretrained=True)
+    efficientnet.classifier = nn.Sequential(
+        nn.Dropout(0.2, inplace=True),
+        nn.Linear(in_features=1280, out_features=2, bias=True)
+    )
+    efficientnet.load_state_dict(torch.load('efficientnet.pt'))
+    # 'ShuffleNet':
+    shufflenet = models.shufflenet_v2_x1_0(pretrained=True)
+    shufflenet.fc = nn.Sequential(
+        nn.Dropout(0.2, inplace=True),
+        nn.Linear(in_features=1024, out_features=2, bias=True)
+    )
+    shufflenet.load_state_dict(torch.load('shufflenet.pt'))
+    return mobilenet.eval().to(device), efficientnet.eval().to(device), shufflenet.eval().to(device)
+    
+mobilenet, efficientnet, shufflenet = load_model()
 
 # Selecting Detection Or Segmentation
-if model_name == 'KNN':
-    model = joblib.load('knn.pkl')
-elif model_name == 'Decision Tree':
-    model = joblib.load('decisiontree.pkl')
-elif model_name == 'Random Forest':
-    model = joblib.load('randomforest.pkl')
-elif model_name == 'Ensemble':
-    model = joblib.load('ensemble.pkl')
+if model_name == 'MobileNet':
+    model = mobilenet
+elif model_name == 'EfficientNet':
+    model = efficientnet
+elif model_name == 'ShuffleNet':
+    model = shufflenet
 
 
 
 # Load Pre-trained ML Model
-st.sidebar.header("Image Config")
-source_radio = st.sidebar.radio("Select Source", ['Image', 'Webcam'])
+st.sidebar.header("Image/Video Config")
+source_radio = st.sidebar.radio("Select Source", ['Image', 'Webcam Image', 'Webcam Video'])
 
-predict = None
+prediction = None
 source_img = None
 # If image is selected
 if source_radio == 'Image':
@@ -62,44 +97,40 @@ if source_radio == 'Image':
                 uploaded_image = Image.open(source_img)
                 st.image(source_img, caption="Uploaded Image", use_column_width=True)
                 if st.button('PREDICT'):
-                    img = np.array(uploaded_image.convert('L'))
-                    feature = calHist(img)
-                    predict,  = model.predict([feature])
+                    prediction = predict(uploaded_image, model)
             except Exception as ex:
                 st.error("Error occurred while opening the image.")
                 st.error(ex)
     with col2:
-        if predict is not None:
+        if prediction is not None:
             st.write('\n\n\n\n\n\n\n\n\n')
-            if predict:
-                st.header('REAL FACE.')
+            if prediction:
+                st.header('This is a real face.')
             else:
-                st.header('FAKE FACE.')
+                st.header('This is a fake face.')
         
 
-elif source_radio == 'Webcam':
+elif source_radio == 'Webcam Image':
     col1, col2 = st.columns(2)
     with col1:
         image = st.camera_input("Take a picture")
         if image and st.button('PREDICT'):
             try:
                 webcam_image = Image.open(image)
-                img = np.array(webcam_image.convert('L'))
-                feature = calHist(img)
-                predict,  = model.predict([feature])
+                prediction  = predict(webcam_image, model)
             except Exception as ex:
                 st.error("Error occurred while processing the webcam image.")
                 st.error(ex)
     with col2:
-        if predict is not None:
+        if prediction is not None:
             st.write('\n\n\n\n\n\n\n\n\n')
-            if predict:
-                st.header('REAL FACE.')
+            if prediction:
+                st.header('This is a real face.')
             else:
-                st.header('FAKE FACE.')
+                st.header('This is a fake face.')
 
 # elif source_radio == 'Webcam Video':
-#     frame_placeholder = st.empty()
+#     FRAME_WINDOW = st.image([])
 #     cap = cv.VideoCapture(0)
 #     while True:
 #         ret, frame = cap.read()
@@ -112,7 +143,7 @@ elif source_radio == 'Webcam':
 #         predict = model.predict([feature])[0]
 #         col1, col2 = st.columns(2)
 #         with col1:
-#             frame_placeholder.image(webcam_frame)
+#             FRAME_WINDOW.image(webcam_frame)
 #         with col2:
 #             if predict is not None:
 #                 st.write('\n\n\n\n\n\n\n\n\n')
@@ -120,5 +151,5 @@ elif source_radio == 'Webcam':
 #                     st.header('This is a real face.')
 #                 else:
 #                     st.header('This is a fake face.')
-else:
-    st.error("Please select a valid source type!")
+# else:
+#     st.error("Please select a valid source type!")
