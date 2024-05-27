@@ -3,3 +3,5 @@ scikit-image
 joblib
 numpy
 opencv-python-headless
+torch
+torchvision
