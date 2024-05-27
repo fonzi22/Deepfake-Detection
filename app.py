@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch
 import cv2
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+device = 'cpu'
 
 def predict(img, model):
     img = np.array(img)
