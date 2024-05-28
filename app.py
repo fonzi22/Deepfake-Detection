@@ -103,9 +103,9 @@ if source_radio == 'Image':
         if prediction is not None:
             st.write('\n\n\n\n\n\n\n\n\n')
             if prediction:
-                st.header('This is a real face.')
-            else:
                 st.header('This is a fake face.')
+            else:
+                st.header('This is a real face.')
         
 
 elif source_radio == 'Webcam Image':
@@ -123,9 +123,9 @@ elif source_radio == 'Webcam Image':
         if prediction is not None:
             st.write('\n\n\n\n\n\n\n\n\n')
             if prediction:
-                st.header('This is a real face.')
-            else:
                 st.header('This is a fake face.')
+            else:
+                st.header('This is a real face.')
 
 # elif source_radio == 'Webcam Video':
 #     FRAME_WINDOW = st.image([])
