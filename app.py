@@ -39,7 +39,7 @@ st.title("Deep Fake Detection")
 st.sidebar.header("ML Model Config")
 
 # Model Options
-model_name = st.sidebar.radio("Select Model", ['MobileNet', 'ShuffleNet', 'EfficientNet', 'Ensemble'])
+model_name = st.sidebar.radio("Select Model", ['MobileNet', 'ShuffleNet', 'EfficientNet'])
 
 
 @staticmethod
