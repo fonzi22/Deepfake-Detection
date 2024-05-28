@@ -12,14 +12,12 @@ import torch.nn as nn
 import torch
 import cv2
 
-device = 'cpu'
-
 def predict(img, model):
     img = np.array(img)
     img = cv2.resize(img, (64, 64))
     image = img.astype(np.float32)
     image = image.transpose(2, 0, 1)
-    image = torch.tensor(image).unsqueeze(0).to(device) 
+    image = torch.tensor(image).unsqueeze(0)
 
     outputs = model(image)
     # return values, indices
@@ -52,22 +50,22 @@ def load_model():
         nn.Dropout(0.2, inplace=True),
         nn.Linear(in_features=576, out_features=2, bias=True)
     )
-    mobilenet.load_state_dict(torch.load('mobilenet.pt'))
+    mobilenet.load_state_dict(torch.load('mobilenet.pt', map_location='cpu'))
     # 'EfficientNet':
     efficientnet = models.efficientnet_b0(pretrained=True)
     efficientnet.classifier = nn.Sequential(
         nn.Dropout(0.2, inplace=True),
         nn.Linear(in_features=1280, out_features=2, bias=True)
     )
-    efficientnet.load_state_dict(torch.load('efficientnet.pt'))
+    efficientnet.load_state_dict(torch.load('efficientnet.pt', map_location='cpu'))
     # 'ShuffleNet':
     shufflenet = models.shufflenet_v2_x1_0(pretrained=True)
     shufflenet.fc = nn.Sequential(
         nn.Dropout(0.2, inplace=True),
         nn.Linear(in_features=1024, out_features=2, bias=True)
     )
-    shufflenet.load_state_dict(torch.load('shufflenet.pt'))
-    return mobilenet.eval().to(device), efficientnet.eval().to(device), shufflenet.eval().to(device)
+    shufflenet.load_state_dict(torch.load('shufflenet.pt', map_location='cpu'))
+    return mobilenet.eval(), efficientnet.eval(), shufflenet.eval()
     
 mobilenet, efficientnet, shufflenet = load_model()
 
